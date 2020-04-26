@@ -51,11 +51,6 @@ namespace AkkaTestApi.Actors
             });
         }
 
-        public override string ToString()
-        {
-            return "WeatherManager()";
-        }
-
         public static Props Props()
         {
             return Akka.Actor.Props.Create(() => new WeatherManager());

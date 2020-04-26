@@ -8,10 +8,5 @@
         }
 
         public string Name { get; }
-
-        public override string ToString()
-        {
-            return $"CreateCityMessage(Name={Name})";
-        }
     }
 }

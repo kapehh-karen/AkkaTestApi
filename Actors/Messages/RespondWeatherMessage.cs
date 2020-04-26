@@ -10,10 +10,5 @@
 
         public string Name { get; }
         public double? Weather { get; }
-
-        public override string ToString()
-        {
-            return $"RespondWeatherMessage(Name={Name},Weather={Weather})";
-        }
     }
 }
