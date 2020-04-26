@@ -25,19 +25,15 @@ namespace AkkaTestApi.Actors
                 _cityActors[message.Name] = weatherActor;
             });
 
-            Receive<UpdateWeatherMessage>(message =>
-            {
-                _cityActors[message.Name].Forward(message);
-            });
+            Receive<UpdateWeatherMessage>(message => _cityActors[message.Name].Forward(message));
 
-            Receive<RequestWeatherMessage>(message =>
-            {
-                _cityActors[message.Name].Forward(message);
-            });
+            Receive<RequestWeatherMessage>(message => _cityActors[message.Name].Forward(message));
 
             Receive<RequestAllCitiesMessage>(async message =>
             {
-                var sender = Sender; // Почему-то нет доступа к Sender после возобновления async-метода
+                // Нет доступа к Sender после возобновления async-метода
+                var sender = Sender;
+
                 var list = new List<CityModel>();
 
                 foreach (var (cityName, actorRef) in _cityActors)
