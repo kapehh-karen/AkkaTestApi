@@ -1,8 +1,8 @@
 ﻿namespace AkkaTestApi.Actors.Messages
 {
-    public class RequestWeatherMessage
+    public class CreateCityMessage
     {
-        public RequestWeatherMessage(string name)
+        public CreateCityMessage(string name)
         {
             Name = name;
         }
@@ -11,7 +11,7 @@
 
         public override string ToString()
         {
-            return $"RequestWeatherMessage(Name={Name})";
+            return $"CreateCityMessage(Name={Name})";
         }
     }
 }

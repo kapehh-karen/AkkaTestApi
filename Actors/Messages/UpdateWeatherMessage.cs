@@ -2,11 +2,18 @@
 {
     public class UpdateWeatherMessage
     {
-        public UpdateWeatherMessage(double weather)
+        public UpdateWeatherMessage(string name, double weather)
         {
+            Name = name;
             Weather = weather;
         }
 
+        public string Name { get; }
         public double Weather { get; }
+
+        public override string ToString()
+        {
+            return $"UpdateWeatherMessage(Name={Name},Weather={Weather})";
+        }
     }
 }

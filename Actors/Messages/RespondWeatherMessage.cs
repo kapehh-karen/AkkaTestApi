@@ -8,5 +8,10 @@
         }
 
         public double Weather { get; }
+
+        public override string ToString()
+        {
+            return $"RespondWeatherMessage(Weather={Weather})";
+        }
     }
 }

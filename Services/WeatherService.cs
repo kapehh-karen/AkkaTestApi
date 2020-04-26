@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System;
 using System.Threading.Tasks;
 using Akka.Actor;
 using AkkaTestApi.Actors;
@@ -11,59 +9,32 @@ namespace AkkaTestApi.Services
 {
     public class WeatherService
     {
-        private readonly ActorSystem _actorSystem;
-
-        private readonly ConcurrentDictionary<string, IActorRef>
-            _cities = new ConcurrentDictionary<string, IActorRef>();
+        private readonly IActorRef _weatherManager;
 
         public WeatherService(ActorSystem actorSystem)
         {
-            _actorSystem = actorSystem;
+            _weatherManager = actorSystem.ActorOf(Props.Create<WeatherManager>(true));
         }
 
         public void CreateCity(string cityName)
         {
-            if (cityName != null && !_cities.ContainsKey(cityName))
-            {
-                _cities[cityName] = _actorSystem.ActorOf(Props.Create<CityWeatherActor>());
-            }
+            _weatherManager.Tell(new CreateCityMessage(cityName));
         }
 
         public async Task<CityModel[]> GetCities()
         {
-            var modelTasks = _cities
-                .Select(async x =>
-                {
-                    var (cityName, actionRef) = x;
-                    var respond = await actionRef.Ask<RespondWeatherMessage>(new RequestWeatherMessage());
-
-                    return new CityModel
-                    {
-                        Name = cityName,
-                        Weather = respond.Weather
-                    };
-                })
-                .ToArray();
-
-            return await Task.WhenAll(modelTasks);
+            var respond = await _weatherManager.Ask<RespondAllCitiesMessage>(new RequestAllCitiesMessage());
+            return respond.Cities;
         }
 
         public void UpdateWeather(string cityName, double weather)
         {
-            if (cityName != null && _cities.TryGetValue(cityName, out var actor))
-            {
-                actor.Tell(new UpdateWeatherMessage(weather));
-            }
+            _weatherManager.Tell(new UpdateWeatherMessage(cityName, weather));
         }
 
         public async Task<double?> GetWeatherFromCity(string cityName)
         {
-            if (cityName == null || !_cities.TryGetValue(cityName, out var actorRef))
-            {
-                return null;
-            }
-
-            var respond = await actorRef.Ask<RespondWeatherMessage>(new RequestWeatherMessage());
+            var respond = await _weatherManager.Ask<RespondWeatherMessage>(new RequestWeatherMessage(cityName));
             return respond.Weather;
         }
     }

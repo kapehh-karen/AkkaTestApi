@@ -32,13 +32,14 @@ namespace AkkaTestApi.Controllers
             return Ok("Ok");
         }
 
+        [HttpGet]
         public async Task<IActionResult> GetCities()
         {
             var cities = await _weatherService.GetCities();
             return Ok(cities);
         }
 
-        [HttpPost("{cityName}")]
+        [HttpGet("{cityName}")]
         public async Task<IActionResult> GetWeather(string cityName)
         {
             return Ok(new

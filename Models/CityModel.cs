@@ -1,4 +1,4 @@
-﻿namespace AkkaTestApi.Models
+﻿﻿namespace AkkaTestApi.Models
 {
     public class CityModel
     {
