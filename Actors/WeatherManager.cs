@@ -3,81 +3,66 @@ using System.Collections.Generic;
 using System.Linq;
 using Akka.Actor;
 using AkkaTestApi.Actors.Messages;
+using AkkaTestApi.Models;
 
 namespace AkkaTestApi.Actors
 {
     public class WeatherManager : ReceiveActor
     {
+        // Либо так, либо броадкастом рассылать и сравнивать имя
         private Dictionary<string, IActorRef> _cityActors = new Dictionary<string, IActorRef>();
 
-        private double _weather;
-
-        public WeatherManager(bool root)
+        public WeatherManager()
         {
             Receive<CreateCityMessage>(message =>
             {
-                Console.WriteLine($"Receive<CreateCityMessage> (root={root}) {this}, message {message}");
-                if (root)
+                if (_cityActors.ContainsKey(message.Name))
                 {
-                    if (_cityActors.ContainsKey(message.Name))
-                    {
-                        return;
-                    }
-
-                    var weatherActor = Context.ActorOf(WeatherManager.Props(false));
-                    Context.Watch(weatherActor);
-                    _cityActors[message.Name] = weatherActor;
+                    return;
                 }
+
+                var weatherActor = Context.ActorOf(WeatherCity.Props(message.Name, null));
+                _cityActors[message.Name] = weatherActor;
             });
 
             Receive<UpdateWeatherMessage>(message =>
             {
-                Console.WriteLine($"Receive<UpdateWeatherMessage> (root={root}) {this}, message {message}");
-                if (root)
-                {
-                    _cityActors[message.Name].Forward(message);
-                }
-                else
-                {
-                    _weather = message.Weather;
-                }
+                _cityActors[message.Name].Forward(message);
             });
 
             Receive<RequestWeatherMessage>(message =>
             {
-                Console.WriteLine($"Receive<RequestWeatherMessage> (root={root}) {this}, message {message}");
-                if (root)
-                {
-                    _cityActors[message.Name].Forward(message);
-                }
-                else
-                {
-                    Sender.Tell(new RespondWeatherMessage(_weather));
-                }
+                _cityActors[message.Name].Forward(message);
             });
 
-            Receive<RequestAllCitiesMessage>(message =>
+            Receive<RequestAllCitiesMessage>(async message =>
             {
-                if (root)
+                var sender = Sender; // Почему-то нет доступа к Sender после возобновления async-метода
+                var list = new List<CityModel>();
+
+                foreach (var (cityName, actorRef) in _cityActors)
                 {
-                    var weatherAllCities =
-                        Context.ActorOf(WeatherAllCities.Props(
-                            _cityActors
-                                .Select(x => (x.Key, x.Value))
-                                .ToArray()));
-                    weatherAllCities.Forward(message);
+                    var respond = await actorRef.Ask<RespondWeatherMessage>(new RequestWeatherMessage(null));
+                    var cityModel = new CityModel
+                    {
+                        Name = cityName,
+                        Weather = respond.Weather
+                    };
+                    list.Add(cityModel);
                 }
+
+                sender.Tell(new RespondAllCitiesMessage(list.ToArray()));
             });
         }
 
         public override string ToString()
         {
-            return $"WeatherManager(_weather={_weather})";
+            return "WeatherManager()";
         }
 
-        public static Props Props(bool root)
+        public static Props Props()
         {
-            return Akka.Actor.Props.Create(() => new WeatherManager(root));
+            return Akka.Actor.Props.Create(() => new WeatherManager());
         }
     }
 }

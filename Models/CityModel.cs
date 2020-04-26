@@ -4,6 +4,6 @@
     {
         public string Name { get; set; }
         
-        public double Weather { get; set; }
+        public double? Weather { get; set; }
     }
 }

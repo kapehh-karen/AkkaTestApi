@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
-using Akka.Actor;
+﻿using System.Threading.Tasks;
 using AkkaTestApi.Services;
 using Microsoft.AspNetCore.Mvc;
 

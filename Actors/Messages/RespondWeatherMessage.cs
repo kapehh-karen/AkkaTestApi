@@ -2,16 +2,18 @@
 {
     public class RespondWeatherMessage
     {
-        public RespondWeatherMessage(double weather)
+        public RespondWeatherMessage(string name, double? weather)
         {
+            Name = name;
             Weather = weather;
         }
 
-        public double Weather { get; }
+        public string Name { get; }
+        public double? Weather { get; }
 
         public override string ToString()
         {
-            return $"RespondWeatherMessage(Weather={Weather})";
+            return $"RespondWeatherMessage(Name={Name},Weather={Weather})";
         }
     }
 }

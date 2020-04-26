@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Akka.Actor;
+using Akka.DI.Core;
 using AkkaTestApi.Actors;
 using AkkaTestApi.Actors.Messages;
 using AkkaTestApi.Models;
@@ -11,9 +12,9 @@ namespace AkkaTestApi.Services
     {
         private readonly IActorRef _weatherManager;
 
-        public WeatherService(ActorSystem actorSystem)
+        public WeatherService(IActorRefFactory actorSystem)
         {
-            _weatherManager = actorSystem.ActorOf(WeatherManager.Props(true));
+            _weatherManager = actorSystem.ActorOf(WeatherManager.Props());
         }
 
         public void CreateCity(string cityName)
