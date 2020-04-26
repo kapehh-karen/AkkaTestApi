@@ -13,7 +13,7 @@ namespace AkkaTestApi.Services
 
         public WeatherService(ActorSystem actorSystem)
         {
-            _weatherManager = actorSystem.ActorOf(Props.Create<WeatherManager>(true));
+            _weatherManager = actorSystem.ActorOf(WeatherManager.Props(true));
         }
 
         public void CreateCity(string cityName)

@@ -24,7 +24,7 @@ namespace AkkaTestApi.Actors
                         return;
                     }
 
-                    var weatherActor = Context.ActorOf(Props.Create<WeatherManager>(false));
+                    var weatherActor = Context.ActorOf(WeatherManager.Props(false));
                     Context.Watch(weatherActor);
                     _cityActors[message.Name] = weatherActor;
                 }
@@ -73,6 +73,11 @@ namespace AkkaTestApi.Actors
         public override string ToString()
         {
             return $"WeatherManager(_weather={_weather})";
+        }
+
+        public static Props Props(bool root)
+        {
+            return Akka.Actor.Props.Create(() => new WeatherManager(root));
         }
     }
 }
