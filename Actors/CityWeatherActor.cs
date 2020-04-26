@@ -5,22 +5,14 @@ using AkkaTestApi.Services;
 
 namespace AkkaTestApi.Actors
 {
-    public class CityWeatherActor : UntypedActor
+    public class CityWeatherActor : ReceiveActor
     {
         private double _weather;
 
-        protected override void OnReceive(object message)
+        public CityWeatherActor()
         {
-            switch (message)
-            {
-                case UpdateWeatherMessage updateWeatherMessage:
-                    _weather = updateWeatherMessage.Weather;
-                    break;
-
-                case RequestWeatherMessage _:
-                    Sender.Tell(new RespondWeatherMessage(_weather));
-                    break;
-            }
+            Receive<UpdateWeatherMessage>(updateWeatherMessage => _weather = updateWeatherMessage.Weather);
+            Receive<RequestWeatherMessage>(_ => Sender.Tell(new RespondWeatherMessage(_weather)));
         }
     }
 }

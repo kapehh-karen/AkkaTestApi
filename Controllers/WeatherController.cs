@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 using Akka.Actor;
 using AkkaTestApi.Services;
@@ -17,13 +18,15 @@ namespace AkkaTestApi.Controllers
             _weatherService = weatherService;
         }
 
-        public IActionResult Create([Required] string cityName)
+        [HttpPost("{cityName}")]
+        public IActionResult Create(string cityName)
         {
             _weatherService.CreateCity(cityName);
             return Ok("Ok");
         }
 
-        public IActionResult UpdateWeather([Required] string cityName, [Required] double weather)
+        [HttpPost("{cityName}")]
+        public IActionResult UpdateWeather(string cityName, [FromForm] double weather)
         {
             _weatherService.UpdateWeather(cityName, weather);
             return Ok("Ok");
@@ -35,7 +38,8 @@ namespace AkkaTestApi.Controllers
             return Ok(cities);
         }
 
-        public async Task<IActionResult> GetWeather([Required] string cityName)
+        [HttpPost("{cityName}")]
+        public async Task<IActionResult> GetWeather(string cityName)
         {
             return Ok(new
             {
