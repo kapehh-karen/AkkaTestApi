@@ -22,6 +22,15 @@ namespace AkkaTestApi.Controllers
             return Ok("Ok");
         }
 
+        /*
+            fetch("https://localhost:5001/weather/updateweather/Test", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+              },
+              body: "weather=11"
+            });
+         */
         [HttpPost("{cityName}")]
         public IActionResult UpdateWeather(string cityName, [FromForm] double weather)
         {
