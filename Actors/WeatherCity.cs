@@ -10,7 +10,7 @@ namespace AkkaTestApi.Actors
             Receive<UpdateWeatherMessage>(message => weather = message.Weather);
             Receive<RequestWeatherMessage>(_ => Sender.Tell(new RespondWeatherMessage(name, weather)));
         }
-        
+
         public static Props Props(string name, double? weather)
         {
             return Akka.Actor.Props.Create(() => new WeatherCity(name, weather));

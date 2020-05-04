@@ -9,7 +9,6 @@ namespace AkkaTestApi.Actors
 {
     public class WeatherManager : ReceiveActor
     {
-        // Либо так, либо броадкастом рассылать и сравнивать имя
         private Dictionary<string, IActorRef> _cityActors = new Dictionary<string, IActorRef>();
 
         public WeatherManager()
@@ -29,11 +28,8 @@ namespace AkkaTestApi.Actors
 
             Receive<RequestWeatherMessage>(message => _cityActors[message.Name].Forward(message));
 
-            Receive<RequestAllCitiesMessage>(async message =>
+            ReceiveAsync<RequestAllCitiesMessage>(async message =>
             {
-                // Нет доступа к Sender после возобновления async-метода
-                var sender = Sender;
-
                 var list = new List<CityModel>();
 
                 foreach (var (cityName, actorRef) in _cityActors)
@@ -47,7 +43,7 @@ namespace AkkaTestApi.Actors
                     list.Add(cityModel);
                 }
 
-                sender.Tell(new RespondAllCitiesMessage(list.ToArray()));
+                Sender.Tell(new RespondAllCitiesMessage(list.ToArray()));
             });
         }
 
