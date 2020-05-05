@@ -21,6 +21,7 @@ namespace AkkaTestApi
                 return actorSystem;
             });
 
+            services.AddSingleton<IdentifierGenerator>();
             services.AddSingleton<WeatherService>();
 
             services.AddControllers();

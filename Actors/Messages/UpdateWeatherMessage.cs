@@ -2,13 +2,14 @@
 {
     public class UpdateWeatherMessage
     {
-        public UpdateWeatherMessage(string name, double weather)
+        public UpdateWeatherMessage(int id, double weather)
         {
-            Name = name;
+            Id = id;
             Weather = weather;
         }
 
-        public string Name { get; }
+        public int Id { get; }
+
         public double Weather { get; }
     }
 }

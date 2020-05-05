@@ -2,11 +2,15 @@
 {
     public class RequestWeatherMessage
     {
-        public RequestWeatherMessage(string name)
+        public RequestWeatherMessage()
         {
-            Name = name;
         }
 
-        public string Name { get; }
+        public RequestWeatherMessage(int id)
+        {
+            Id = id;
+        }
+
+        public int? Id { get; }
     }
 }

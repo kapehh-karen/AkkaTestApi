@@ -11,15 +11,17 @@ namespace AkkaTestApi.Services
     public class WeatherService
     {
         private readonly IActorRef _weatherManager;
+        private readonly IdentifierGenerator _identifierGenerator;
 
-        public WeatherService(IActorRefFactory actorSystem)
+        public WeatherService(IActorRefFactory actorSystem, IdentifierGenerator identifierGenerator)
         {
             _weatherManager = actorSystem.ActorOf(WeatherManager.Props());
+            _identifierGenerator = identifierGenerator;
         }
 
         public void CreateCity(string cityName)
         {
-            _weatherManager.Tell(new CreateCityMessage(cityName));
+            _weatherManager.Tell(new CreateCityMessage(_identifierGenerator.GenerateId(), cityName, null));
         }
 
         public async Task<CityModel[]> GetCities()
@@ -28,15 +30,21 @@ namespace AkkaTestApi.Services
             return respond.Cities;
         }
 
-        public void UpdateWeather(string cityName, double weather)
+        public void UpdateWeather(int id, double weather)
         {
-            _weatherManager.Tell(new UpdateWeatherMessage(cityName, weather));
+            _weatherManager.Tell(new UpdateWeatherMessage(id, weather));
         }
 
-        public async Task<double?> GetWeatherFromCity(string cityName)
+        public async Task<CityModel> GetWeatherFromCity(int id)
         {
-            var respond = await _weatherManager.Ask<RespondWeatherMessage>(new RequestWeatherMessage(cityName));
-            return respond.Weather;
+            var respond = await _weatherManager.Ask<RespondWeatherMessage>(new RequestWeatherMessage(id));
+
+            return new CityModel
+            {
+                Id = respond.Id,
+                Name = respond.Name,
+                Weather = respond.Weather
+            };
         }
     }
 }

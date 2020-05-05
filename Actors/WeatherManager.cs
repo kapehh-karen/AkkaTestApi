@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Akka.Actor;
 using AkkaTestApi.Actors.Messages;
 using AkkaTestApi.Models;
@@ -9,35 +7,48 @@ namespace AkkaTestApi.Actors
 {
     public class WeatherManager : ReceiveActor
     {
-        private Dictionary<string, IActorRef> _cityActors = new Dictionary<string, IActorRef>();
-
         public WeatherManager()
         {
             Receive<CreateCityMessage>(message =>
             {
-                if (_cityActors.ContainsKey(message.Name))
+                var existsActor = Context.Child(message.Id.ToString());
+                if (existsActor.IsNobody())
                 {
-                    return;
+                    Context.ActorOf(
+                        WeatherCity.Props(message.Id, message.Name, message.Weather),
+                        message.Id.ToString());
                 }
-
-                var weatherActor = Context.ActorOf(WeatherCity.Props(message.Name, null));
-                _cityActors[message.Name] = weatherActor;
             });
 
-            Receive<UpdateWeatherMessage>(message => _cityActors[message.Name].Forward(message));
+            Receive<UpdateWeatherMessage>(message =>
+            {
+                var existsActor = Context.Child(message.Id.ToString());
+                if (!existsActor.IsNobody())
+                {
+                    existsActor.Forward(message);
+                }
+            });
 
-            Receive<RequestWeatherMessage>(message => _cityActors[message.Name].Forward(message));
+            Receive<RequestWeatherMessage>(message =>
+            {
+                var existsActor = Context.Child(message.Id.ToString());
+                if (!existsActor.IsNobody())
+                {
+                    existsActor.Forward(message);
+                }
+            });
 
             ReceiveAsync<RequestAllCitiesMessage>(async message =>
             {
                 var list = new List<CityModel>();
 
-                foreach (var (cityName, actorRef) in _cityActors)
+                foreach (var actorRef in Context.GetChildren())
                 {
-                    var respond = await actorRef.Ask<RespondWeatherMessage>(new RequestWeatherMessage(null));
+                    var respond = await actorRef.Ask<RespondWeatherMessage>(new RequestWeatherMessage());
                     var cityModel = new CityModel
                     {
-                        Name = cityName,
+                        Id = respond.Id,
+                        Name = respond.Name,
                         Weather = respond.Weather
                     };
                     list.Add(cityModel);

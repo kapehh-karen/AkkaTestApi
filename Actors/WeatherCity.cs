@@ -5,15 +5,15 @@ namespace AkkaTestApi.Actors
 {
     public class WeatherCity : ReceiveActor
     {
-        public WeatherCity(string name, double? weather)
+        public WeatherCity(int id, string name, double? weather)
         {
             Receive<UpdateWeatherMessage>(message => weather = message.Weather);
-            Receive<RequestWeatherMessage>(_ => Sender.Tell(new RespondWeatherMessage(name, weather)));
+            Receive<RequestWeatherMessage>(_ => Sender.Tell(new RespondWeatherMessage(id, name, weather)));
         }
 
-        public static Props Props(string name, double? weather)
+        public static Props Props(int id, string name, double? weather)
         {
-            return Akka.Actor.Props.Create(() => new WeatherCity(name, weather));
+            return Akka.Actor.Props.Create(() => new WeatherCity(id, name, weather));
         }
     }
 }
